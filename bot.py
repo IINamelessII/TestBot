@@ -21,7 +21,7 @@ def memeCommand(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text=response)
 
 
-def textMessage(bot, update):
+def textMessage(bot, update): # TODO: make bot speek in group chats 
     request = apiai.ApiAI(DIALOGFLOW_TOKEN).text_request() # Токен API к Dialogflow
     request.lang = 'ru' # На каком языке будет послан запрос
     request.session_id = 'TestNamelessBot' # ID Сессии диалога (нужно, чтобы потом учить бота)
