@@ -1,4 +1,6 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from random import shuffle
+from req import get_memes
 from tokens import DIALOGFLOW_TOKEN, TELEGRAM_TOKEN
 import apiai
 import json
@@ -8,6 +10,15 @@ import json
 def startCommand(bot, update):
     response = 'So, do you want to start speeking?'
     bot.send_message(chat_id=update.message.chat_id, text=response)
+
+
+def memeCommand(bot, update):
+    try:
+        src = memes.pop() # TODO: make list for every char, not 1 for all
+        bot.send_photo(chat_id=update.message.chat_id, photo=src)
+    except IndexError:
+        response = "No more memes :("
+        bot.send_message(chat_id=update.message.chat_id, text=response)
 
 
 def textMessage(bot, update):
@@ -24,15 +35,22 @@ def textMessage(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text='What did you say?')
 
 
-updater = Updater(token=TELEGRAM_TOKEN)
-dispatcher = updater.dispatcher
-# Хендлеры
-start_command_handler = CommandHandler('start', startCommand)
-text_message_handler = MessageHandler(Filters.text, textMessage)
-# Добавляем хендлеры в диспетчер
-dispatcher.add_handler(start_command_handler)
-dispatcher.add_handler(text_message_handler)
-# Начинаем поиск обновлений
-updater.start_polling(clean=True)
-# Останавливаем бота, если были нажаты Ctrl + C
-updater.idle()
+if __name__ == "__main__":
+
+    memes = get_memes()
+    shuffle(memes)
+
+    updater = Updater(token=TELEGRAM_TOKEN)
+    dispatcher = updater.dispatcher
+
+    start_command_handler = CommandHandler('start', startCommand)
+    meme_command_handler = CommandHandler('meme', memeCommand)
+    text_message_handler = MessageHandler(Filters.text, textMessage)
+
+    dispatcher.add_handler(start_command_handler)
+    dispatcher.add_handler(meme_command_handler)
+    dispatcher.add_handler(text_message_handler)
+
+    updater.start_polling(clean=True)
+
+    updater.idle()
